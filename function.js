@@ -21,22 +21,23 @@ const parse = function(ev){
             alert("Please input the keywords");
             return;
     }
-
+    //Display loading
     document.getElementById("loader_cont").style.display ='inline';
 
-    var x = document.getElementById("files")
+    var x = document.getElementById("files");
+    var k = document.getElementById("keywords").value;
+    k = txtToArray(k);
+
+    console.log(k);
 
     //alert(x.files[0])
 
-    parseFiles(x.files[0],document.getElementById("keywords")).then(function(data){
+    parseFiles(x.files[0],k).then(function(data){
         updateTable(data);
+        //Hide loading
         document.getElementById("loader_cont").style.display ='none';
     });
-    
-    
-
 }
-
 
 function updateTable(data){
     $('#table').bootstrapTable('load', data);
@@ -53,32 +54,53 @@ async function parseFiles(files, keywords){
     var t = {};
 
 
-    await (gettext(files).then(function(res){
+    await gettext(files, keywords).then(function(res){
         //console.log(res);
         t = res;
-    }));
+    });
 
-    //console.log(t);
+    await (df = new dfd.DataFrame(t));
 
-    df = new dfd.DataFrame(obj)
-    //console.log(df.print());
+    await (group = df.groupby(["page","word"]).count());
 
-    group = df.groupby(["page","word"]).count();
-    group.sortValues("count_count", { ascending: false, inplace: true });
+    await group.sortValues("count_count", { ascending: false, inplace: true });
+
     console.log(group.print());
-    //console.log(Array(txtArray.size).fill(10))
-    //console.log(txtArray.loc(["0:"]).print())
 
+    //Filter out only keywords
+
+    // rowsToKeep = [];
+
+    // for (i=0;i<group.shape[0];i++){
+    //     console.log(i)
+    //     var value = group.loc({columns: ["word"]}).iloc({rows: [i]}).values;
+    //     value = String(value).replace(/\s/g, '')
+
+    //     console.log("Value: "+ value + " | "+ keywords.includes(value) + " || " + keywords)
+
+    //     if(keywords.includes(value)){
+    //         console.log("TRUE");
+    //         rowsToKeep.push(i);
+    //         console.log(rowsToKeep)
+    //     }
+    // }
+
+    // console.log(rowsToKeep)
+
+    //group = group.iloc({rows: rowsToKeep})
 
     return dfd.toJSON(group);//[{"IpAddr":"10.99.220.7","FactoryNumber":"34567","Unsent":10,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.228.228","FactoryNumber":"142123951023","Unsent":1,"Os":"linux","ExpirationDate":"05-05-2020","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"1234567","Unsent":2,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"234567","Unsent":3,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"}];
-}
+    }
 
-function txtToArray(txt){
+function txtToArray(txt,keywords){
     words = txt.split(" ");
+    if(keywords!=null){
+        words = words.filter(w => keywords.includes(w));
+    }
     return words;
 }
 
-function gettext(pdfUrl){
+function gettext(pdfUrl, keywords){
     const promise = new Promise((resolve, reject)=>{
     var txt = ""
     var pages = [];
@@ -92,12 +114,12 @@ function gettext(pdfUrl){
         //TODO: loop all pages and return DF
         for (let j=1; j <= pdf.numPages;j++){
             pdf.getPage(j).then(function(page){
-                //console.log("page "+j);
+                console.log("page "+j);
                 page.getTextContent({ normalizeWhitespace: true }).then(function(textContent){
                     //console.log(textContent);
                     loop(textContent).then(function(result){
                         txt = result;
-                        txt = txtToArray(txt)
+                        txt = txtToArray(txt,keywords)
 
                         pages = pages.concat(Array(txt.length).fill(j));
                         words = words.concat(txt)
