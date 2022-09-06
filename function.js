@@ -93,7 +93,7 @@ async function parseFiles(files, keywords){
     }
 
 function txtToArray(txt,keywords){
-    words = txt.split(" ");
+    words = txt.toLowerCase().split(" ");
     if(keywords!=null){
         words = words.filter(w => keywords.includes(w));
     }
@@ -117,8 +117,9 @@ function gettext(pdfUrl, keywords){
                 console.log("page "+j);
                 page.getTextContent({ normalizeWhitespace: true }).then(function(textContent){
                     //console.log(textContent);
+
                     loop(textContent).then(function(result){
-                        txt = result;
+                        txt = result.toLowerCase();
                         txt = txtToArray(txt,keywords)
 
                         pages = pages.concat(Array(txt.length).fill(j));
