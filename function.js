@@ -51,22 +51,6 @@ function validateInput(files, keywords){
 async function parseFiles(files, keywords){
     // TODO 
 
-    var t = {};
-
-
-    // await gettext(files, keywords).then(function(res){
-    //     //console.log(res);
-    //     t = res;
-    // });
-
-    // await (df = new dfd.DataFrame(t));
-
-    // await (group = df.groupby(["page","word"]).count());
-
-    // await group.sortValues("count_count", { ascending: false, inplace: true });
-
-    // console.log(group.print());
-
     await gettext(files, keywords).then(
         function(res){  df = new dfd.DataFrame(res);
                         group = df.groupby(["page","word"]).count();
@@ -75,29 +59,6 @@ async function parseFiles(files, keywords){
 
     return dfd.toJSON(group);
 
-    //Filter out only keywords
-
-    // rowsToKeep = [];
-
-    // for (i=0;i<group.shape[0];i++){
-    //     console.log(i)
-    //     var value = group.loc({columns: ["word"]}).iloc({rows: [i]}).values;
-    //     value = String(value).replace(/\s/g, '')
-
-    //     console.log("Value: "+ value + " | "+ keywords.includes(value) + " || " + keywords)
-
-    //     if(keywords.includes(value)){
-    //         console.log("TRUE");
-    //         rowsToKeep.push(i);
-    //         console.log(rowsToKeep)
-    //     }
-    // }
-
-    // console.log(rowsToKeep)
-
-    //group = group.iloc({rows: rowsToKeep})
-
-    //return dfd.toJSON(group);//[{"IpAddr":"10.99.220.7","FactoryNumber":"34567","Unsent":10,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.228.228","FactoryNumber":"142123951023","Unsent":1,"Os":"linux","ExpirationDate":"05-05-2020","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"1234567","Unsent":2,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"234567","Unsent":3,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"}];
     }
 
 function txtToArray(txt,keywords){
