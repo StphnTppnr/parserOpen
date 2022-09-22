@@ -57,15 +57,14 @@ async function parseFiles(files, keywords){
     await gettext(files, keywords).then(function(res){
         //console.log(res);
         t = res;
-    });
+    }).then(function(t){new dfd.DataFrame(t);
+    }).then(function(df){df.groupby(["page","word"]).count();
+    }).then(function(group){group.sortValues("count_count", { ascending: false, inplace: true});
+    }).then(function(group){
+        console.log(group.print());
+        return dfd.toJSON(group);
+    })
 
-    await (df = new dfd.DataFrame(t));
-
-    await (group = df.groupby(["page","word"]).count());
-
-    await group.sortValues("count_count", { ascending: false, inplace: true });
-
-    console.log(group.print());
 
     //Filter out only keywords
 
@@ -89,7 +88,7 @@ async function parseFiles(files, keywords){
 
     //group = group.iloc({rows: rowsToKeep})
 
-    return dfd.toJSON(group);//[{"IpAddr":"10.99.220.7","FactoryNumber":"34567","Unsent":10,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.228.228","FactoryNumber":"142123951023","Unsent":1,"Os":"linux","ExpirationDate":"05-05-2020","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"1234567","Unsent":2,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"234567","Unsent":3,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"}];
+    //return dfd.toJSON(group);//[{"IpAddr":"10.99.220.7","FactoryNumber":"34567","Unsent":10,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.228.228","FactoryNumber":"142123951023","Unsent":1,"Os":"linux","ExpirationDate":"05-05-2020","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"1234567","Unsent":2,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"234567","Unsent":3,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"}];
     }
 
 function txtToArray(txt,keywords){
