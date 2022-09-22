@@ -54,18 +54,26 @@ async function parseFiles(files, keywords){
     var t = {};
 
 
-    await gettext(files, keywords).then(function(res){
-        //console.log(res);
-        t = res;
-    });
+    // await gettext(files, keywords).then(function(res){
+    //     //console.log(res);
+    //     t = res;
+    // });
 
-    await (df = new dfd.DataFrame(t));
+    // await (df = new dfd.DataFrame(t));
 
-    await (group = df.groupby(["page","word"]).count());
+    // await (group = df.groupby(["page","word"]).count());
 
-    await group.sortValues("count_count", { ascending: false, inplace: true });
+    // await group.sortValues("count_count", { ascending: false, inplace: true });
 
-    console.log(group.print());
+    // console.log(group.print());
+
+    await gettext(files, keywords).then(
+        function(res){  df = new dfd.DataFrame(res);
+                        group = df.groupby(["page","word"]).count();
+                        group.sortValues("count_count", { ascending: false, inplace: true });
+                });
+
+    return dfd.toJSON(group);
 
     //Filter out only keywords
 
@@ -89,7 +97,7 @@ async function parseFiles(files, keywords){
 
     //group = group.iloc({rows: rowsToKeep})
 
-    return dfd.toJSON(group);//[{"IpAddr":"10.99.220.7","FactoryNumber":"34567","Unsent":10,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.228.228","FactoryNumber":"142123951023","Unsent":1,"Os":"linux","ExpirationDate":"05-05-2020","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"1234567","Unsent":2,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"234567","Unsent":3,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"}];
+    //return dfd.toJSON(group);//[{"IpAddr":"10.99.220.7","FactoryNumber":"34567","Unsent":10,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.228.228","FactoryNumber":"142123951023","Unsent":1,"Os":"linux","ExpirationDate":"05-05-2020","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"1234567","Unsent":2,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"},{"IpAddr":"10.99.220.7","FactoryNumber":"234567","Unsent":3,"Os":"windows","ExpirationDate":"05-05-2021","Version":"1.1067"}];
     }
 
 function txtToArray(txt,keywords){
