@@ -49,20 +49,21 @@ function validateInput(files, keywords){
 }
 
 async function parseFiles(files, keywords){
-    // TODO 
+    // TODO - Danfo
 
     await gettext(files, keywords).then(
         function(res){  df = new dfd.DataFrame(res);
                         group = df.groupby(["page","word"]).count();
                         group.sortValues("count_count", { ascending: false, inplace: true });
                 });
-
+    
+    dfd.toExcel(group)
     return dfd.toJSON(group);
 
     }
 
 function txtToArray(txt,keywords){
-    words = txt.toLowerCase().split(" ");
+    words = txt.toLowerCase().split(/[\s,;●\r\n]+/);
     if(keywords!=null){
         words = words.filter(w => keywords.includes(w));
     }
@@ -79,37 +80,73 @@ function gettext(pdfUrl, keywords){
 
     var loadingTask = pdfjsLib.getDocument(URL.createObjectURL(pdfUrl));
 
-    loadingTask.promise.then(function(pdf) {
+    loadingTask.promise.then(async function(pdf) {
         //TODO: loop all pages and return DF
         for (let j=1; j <= pdf.numPages;j++){
-            pdf.getPage(j).then(function(page){
-                console.log("page "+j);
-                page.getTextContent({ normalizeWhitespace: true }).then(function(textContent){
+            
+            await pdf.getPage(j).then(async function(page){
+                //console.log("page "+j +" of "+pdf.numPages);
+                
+                
+                
+                await page.getTextContent({ normalizeWhitespace: true }).then(function(textContent){
                     //console.log(textContent);
+                    //if(j==11){console.log(textContent)};
+                    
+                    // loop(textContent).then(function(result){
+                    //     txt = result.toLowerCase();
+                    //     //console.log("Page "+j+"*******"+txt);
+                    //     txt = txtToArray(txt,keywords);
 
-                    loop(textContent).then(function(result){
-                        txt = result.toLowerCase();
-                        txt = txtToArray(txt,keywords)
+                    //     pages = pages.concat(Array(txt.length).fill(j));
+                    //     words = words.concat(txt);
 
-                        pages = pages.concat(Array(txt.length).fill(j));
-                        words = words.concat(txt)
+                    //     if(j == pdf.numPages){
+                    //         obj = {};
+                    //         labels = ["page","word","count"]
+                    //         obj[labels[0]] = pages;
+                    //         obj[labels[1]] = words;
+                    //         obj[labels[2]] = Array(words.length).fill(1);
 
-                        if(j == pdf.numPages){
-                            obj = {};
-                            labels = ["page","word","count"]
-                            obj[labels[0]] = pages;
-                            obj[labels[1]] = words;
-                            obj[labels[2]] = Array(words.length).fill(1);
+                    //         resolve(obj)
+                    //     }
 
-                            resolve(obj)
-                        }
+                    // });
 
-                    });                
+
+                    if(j==18 || j == 151){console.log(textContent)};
+                    txt = ""
+
+                    for(let x =0;x < Object.entries(textContent)[0][1].length; x++){
+                        txt = txt + " " + Object.entries(textContent)[0][1][x]['str'].toLowerCase();
+                    }
+
+                    if(j==18 || j == 151){console.log(txt)};
+
+                    txt = txtToArray(txt,keywords);
+
+                    pages = pages.concat(Array(txt.length).fill(j));
+                    
+                    words = words.concat(txt);
+
+                    console.log("HERE " + j +" DONE")
+
+                    if(j == pdf.numPages){
+                        obj = {};
+                        labels = ["page","word","count"]
+                        obj[labels[0]] = pages;
+                        obj[labels[1]] = words;
+                        obj[labels[2]] = Array(words.length).fill(1);
+                        
+                        console.log(words)
+
+                        resolve(obj);
+                    }
                 });
             });
+            
         }
-    });
-    
+    }).then(function(){console.log("hello")});    
 });
     return promise
   }
