@@ -15,22 +15,27 @@
   <body class="container">
     <!-- <py-repl id="my-repl" auto-generate="true"> </py-repl> -->
 
-  <py-config>
+  <!-- <py-config>
     paths = [
       "./utils.py"
     ]
-  </py-config>
+  </py-config> -->
+
+  <py-env>
+    - fitz == 1.20.2
+    - ./utils.py
+  </py-env>
 
   <py-script src="./todo.py">  </py-script>
 
   <main>
     <section>
-
     <div class="text-center w-full mb-8">
-      <h1 class="text-3xl font-bold text-gray-800 uppercase tracking-tight">To Do List</h1>
+      <h1 class="text-3xl font-bold text-gray-800 uppercase tracking-tight">Parser</h1>
     </div>
     <div>
-      <input id="new-task-content" class="py-input" type="text">
+      <input id="new-task-content" class="py-input" type="file">
+
       <button id="new-task-btn" class="py-button" type="submit" py-click="add_task()">
         Add task
       </button>

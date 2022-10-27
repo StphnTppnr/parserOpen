@@ -2,6 +2,8 @@ from datetime import datetime as dt
 
 from utils import add_class, remove_class
 
+import fitz
+
 tasks = []
 
 # define the task template that will be use to render new templates to the page
@@ -11,12 +13,18 @@ new_task_content = Element("new-task-content")
 
 
 def add_task(*ags, **kws):
-    # ignore empty task
+    # ignore empty file
     if not new_task_content.element.value:
         return None
 
-    # create task
-    task_id = f"task-{len(tasks)}"
+    text = ""
+    # fetch text
+    with fitz.open(new_task_content.element.value)
+        for page in doc:
+
+            text = ""
+            text += page.get_text()
+    task_id = text
     task = {
         "id": task_id,
         "content": new_task_content.element.value,
